@@ -248,6 +248,14 @@ const updateBook = async function (req, res) {
 
     let getBookData = await bookModel.findById({ _id: bookId });
 
+    if (!getBookData) {
+      return res.status(404).send({ status: false, message: 'No Book found' });
+    }
+
+    if (getBookData.isDeleted == true) {
+      return res.status(400).send({ status: false, message: 'The Book is already deleted' });
+    }
+
     const oneUserId = getBookData.userId.toString()
 
     //authorization
@@ -255,14 +263,6 @@ const updateBook = async function (req, res) {
 
     if (decodedToken !== oneUserId) {
       return res.status(403).send({ status: false, message: 'You are not authorized so You can not update the book' });
-    }
-
-    if (!getBookData) {
-      return res.status(404).send({ status: false, message: 'No Book found' });
-    }
-
-    if (getBookData.isDeleted == true) {
-      return res.status(400).send({ status: false, message: 'The Book is already deleted' });
     }
 
     let data = req.body
